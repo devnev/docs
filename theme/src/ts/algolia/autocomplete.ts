@@ -1,6 +1,7 @@
 import algoliasearch, { SearchClient } from "algoliasearch/lite";
 import { autocomplete, getAlgoliaResults, getAlgoliaFacets } from "@algolia/autocomplete-js";
 import { getTags, getTagsPlugin, setTags, Tag, iconForTag, labelForTag, mapTagsToFilters, groupBy, formatCount, debounce, listenForEvents } from "./utils";
+import { onPageEvent } from "../navigation";
 
 // CSS selector of the element to convert into an autocomplete control.
 const autocompleteContainer = "#search";
@@ -21,6 +22,10 @@ let baseTags: Tag[];
 
 // Initialize the autocomplete control.
 function initAutocomplete(el: HTMLElement) {
+
+    // The target element *should* be empty on page load, but it may not be when running in SPA-mode (e.g., when clicking the back button).
+    // Totally disabling caching (:cry:) in Turbo seems to make this unnecessary, so commenting it out for now.
+    // el.innerHTML = "";
 
     // Read the index settings from the container element.
     appID = el.getAttribute("data-app-id");
@@ -312,7 +317,7 @@ function initAutocomplete(el: HTMLElement) {
 }
 
 // Wait until the DOM is ready before looking for any autocomplete controls on the page.
-window.addEventListener("DOMContentLoaded", () => {
+onPageEvent("load", () => {
     const el = document.querySelector(autocompleteContainer) as HTMLElement;
     if (el) {
         initAutocomplete(el);
